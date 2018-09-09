@@ -1,8 +1,9 @@
-from urllib.request import urlopen
+import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from time import sleep
+import datetime
 import csv
 
 # ブラウザのオプションを格納する変数を取得する
@@ -12,27 +13,41 @@ options = Options()
 options.set_headless(True)
 # ブラウザを起動する
 driver = webdriver.Chrome(chrome_options=options)
-#driver = webdriver.Chrome()
-# ブラウザでアクセスする
-driver.get("http://baseballdata.jp/2017/376/GResult.html")
-# 「全て見る」リンクを押下して全データを表示させる
-driver.find_element_by_class_name('allshow').click()
-sleep(1)
-# HTMLの文字コードをUTF-8に変換して取得する
-html = driver.page_source.encode('utf-8')
 
-bsObj = BeautifulSoup(html,"html.parser")
-rows = bsObj.findAll("tr")
+# サイト内のチームindexと対応するチーム名（頭文字）の辞書を作成する
+dict_teams = {1:'G',2:'S',3:'DB',4:'D',5:'T',6:'C',
+              7:'L',8:'F',9:'M',11:'Bs',12:'H',376:'E'}
 
-# CSVファイルの設定
-csvFile = open("csv/2017_E_match_results.csv",'wt', newline = '', encoding = 'utf-8')
-writer = csv.writer(csvFile)
+for key, value in dict_teams.items():
+    # チームごとにurlを作成する
+    url = ('http://baseballdata.jp/{index}/GResult.html'.format(index=key))
 
-try:
-    for row in rows:
-        csvRow = []
-        for cell in row.findAll("td"):
-            csvRow.append(cell.get_text().strip())
-        writer.writerow(csvRow)
-finally:
-    csvFile.close()
+    # ブラウザでアクセスする
+    driver.get(url)
+    # 「全て見る」リンクを押下して全データを表示させる
+    driver.find_element_by_class_name('allshow').click()
+    sleep(1)
+
+    # HTMLの文字コードをUTF-8に変換して取得する
+    html = driver.page_source.encode('utf-8')
+    soup = BeautifulSoup(html,'html.parser')
+    rows = soup.findAll('tr')
+
+    # 現在年を取得する
+    this_year = datetime.date.today().year
+
+    # CSVファイルの設定
+    csvFile = open('csv/{year}/{year}_{team_capital}_match_results.csv'.format(year=this_year,team_capital=value),
+                   'wt', newline = '', encoding = 'utf-8')
+    writer = csv.writer(csvFile)
+
+    try:
+        for row in rows:
+            csvRow = []
+            for cell in row.findAll("td"):
+                csvRow.append(cell.get_text().strip())
+            writer.writerow(csvRow)
+    finally:
+        csvFile.close()
+
+    sleep(1)
