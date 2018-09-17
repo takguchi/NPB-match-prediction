@@ -37,17 +37,18 @@ for key, value in dict_teams.items():
     this_year = datetime.date.today().year
 
     # CSVファイルの設定
-    csvFile = open('csv/{year}/{year}_{team_capital}_match_results.csv'.format(year=this_year,team_capital=value),
+    file_name = 'csv/{year}/{year}_{team_capital}_match_results.csv'
+    csv_file = open(file_name.format(year=this_year,team_capital=value),
                    'wt', newline = '', encoding = 'utf-8')
-    writer = csv.writer(csvFile)
+    writer = csv.writer(csv_file)
 
     try:
         for row in rows:
-            csvRow = []
+            csv_row = []
             for cell in row.findAll("td"):
-                csvRow.append(cell.get_text().strip())
-            writer.writerow(csvRow)
+                csv_row.append(cell.get_text().strip())
+            writer.writerow(csv_row)
     finally:
-        csvFile.close()
+        csv_file.close()
 
     sleep(1)
