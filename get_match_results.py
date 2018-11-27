@@ -44,9 +44,9 @@ for key, value in dict_teams.items():
         html = driver.page_source.encode('utf-8')
         soup = BeautifulSoup(html,'html.parser')
 
-        for row in soup.findAll("tr", class_=""):
+        for row in soup.findAll('tr', class_=''):
             csv_row = []
-            for cell in row.findAll("td"):
+            for cell in row.findAll('td', bgcolor=''):
                 csv_row.append(cell.get_text().strip())
             writer.writerow(csv_row)
 
