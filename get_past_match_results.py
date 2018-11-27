@@ -36,7 +36,7 @@ for year in years:
         # HTMLの文字コードをUTF-8に変換して取得する
         html = driver.page_source.encode('utf-8')
         soup = BeautifulSoup(html,'html.parser')
-        rows = soup.findAll('tr')
+        rows = soup.findAll('tr', class_='')
     
         # CSVファイルの設定
         file_name = 'csv/{year}/{year}_{team_capital}_match_results.csv'
@@ -47,8 +47,8 @@ for year in years:
         try:
             for row in rows:
                 csv_row = []
-                for cell in row.findAll("td"):
-                    csv_rw.append(cell.get_text().strip())
+                for cell in row.findAll('td', bgcolor=''):
+                    csv_row.append(cell.get_text().strip())
                 writer.writerow(csv_row)
         finally:
             csv_file.close()
